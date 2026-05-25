@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
 aiosignal==1.4.0
@@ -91,3 +92,10 @@ watchdog==6.0.0
 wheel==0.47.0
 yarl==1.23.0
 zipp==4.1.0
+=======
+crewai
+langchain
+langchain-openai
+python-dotenv
+requests
+>>>>>>> c384f6bee78fe7c7f61973f6f9992eb78b887054
