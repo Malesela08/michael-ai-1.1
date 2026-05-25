@@ -1,0 +1,27 @@
+name: Guardian AI Safety Check
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Safety Logic
+        run: python safety/kill_switch.py
+name: Check Code and Notify
+on: [push]
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Send Email Notification
+        uses: dawiddr/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{secrets.EMAIL_USERNAME}}
+          password: ${{secrets.EMAIL_PASSWORD}}
+          subject: Guardian AI Update - Next Steps
+          body: "New code detected. Analysis complete. Please review the changes in the repository."
+          to: your-email@example.com
+          from: Guardian AI System
