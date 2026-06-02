@@ -1,0 +1,11 @@
+{
+  "extensions": [
+    "ms-toolsai.data-wrangler",
+    "ms-python.python",
+    "github.vscode-github-actions",
+    "ms-azuretools.vscode-docker",
+    "cs50.vscode-extension-uninstaller"
+  ],
+  "project": "Guardian Angel AI",
+  "status": "Initialized"
+}
