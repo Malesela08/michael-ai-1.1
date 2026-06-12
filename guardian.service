@@ -1,0 +1,11 @@
+[Unit]
+Description=Security Guardian AI
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /workspaces/guardian-angel-ai4/security_system.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
