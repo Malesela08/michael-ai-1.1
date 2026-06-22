@@ -1,0 +1,21 @@
+jobs:
+  build:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+    
+    # ADD THIS BLOCK TO FIX THE 403 ERROR:
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Lint Code Base
+        uses: super-linter/super-linter/slim@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

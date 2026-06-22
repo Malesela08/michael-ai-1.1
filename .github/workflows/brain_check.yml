@@ -1,0 +1,20 @@
+name: Check Brain Logic
+
+on:
+  push:
+    paths:
+      - 'brain/**'
+      - 'crews/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Linter
+        uses: super-linter/super-linter@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PYTHON: true
