@@ -1,0 +1,15 @@
+2026-06-24 17:37:06,414 - INFO - Deep scan initiated.
+2026-06-24 17:37:06,415 - INFO - Integrity Check: Found sdr_brain.py in logic/
+2026-06-24 17:37:06,415 - INFO - Integrity Check: Found sentinel.py in logic/
+2026-06-24 17:37:06,415 - INFO - Integrity Check: Found system_persona.py in logic/
+2026-06-24 17:37:06,415 - INFO - Integrity Check: Found phone_bridge.py in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found tasks_hub.py in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found network_bridge.py in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found enforcer_node.py in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found twinny_guard.py in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found __pycache__ in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found task_switcher.py in logic/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found server.py in left_brain/
+2026-06-24 17:37:06,416 - INFO - Integrity Check: Found server.py in right_brain/
+2026-06-24 17:37:06,417 - INFO - Integrity Check: Found foundry-toolkit in digital-brain/
+2026-06-24 17:37:06,417 - INFO - Scan complete.

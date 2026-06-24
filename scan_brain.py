@@ -1,16 +1,27 @@
 import os
+import logging
+
+logging.basicConfig(filename='guardian_integrity.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 def scan_guardian_brain():
-    print("Twinny AI initiating deep scan of Guardian Angel AI brain...")
+    print("Initiating deep scan...")
+    logging.info("Deep scan initiated.")
     targets = ['logic/', 'left_brain/', 'right_brain/', 'digital-brain/']
+
     for target in targets:
-        if os.path.exists(target):
-            print(f"\n--- Analyzing {target} ---")
-            # List files to check for structure integrity
-            files = os.listdir(target)
-            for file in files:
-                print(f"Found: {file}")
-    print("\nScan complete. System state reported to Digital Comrade.")
+        try:
+            if os.path.exists(target):
+                files = os.listdir(target)
+                for file in files:
+                    logging.info(f"Integrity Check: Found {file} in {target}")
+            else:
+                logging.warning(f"Target missing: {target}")
+        except Exception as e:
+            logging.error(f"Failed to scan {target}: {e}")
+
+    print("Scan complete. Log saved to guardian_integrity.log.")
+    logging.info("Scan complete.")
 
 if __name__ == "__main__":
     scan_guardian_brain()
