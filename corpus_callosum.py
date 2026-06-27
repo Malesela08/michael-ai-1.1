@@ -1,5 +1,7 @@
 import queue
+
 from maintenance_crew import maintenance_crew
+
 
 class CorpusCallosum:
     def __init__(self):
@@ -19,5 +21,6 @@ class CorpusCallosum:
         if not self.message_bus.empty():
             return self.message_bus.get()
         return None
+
 
 bridge = CorpusCallosum()

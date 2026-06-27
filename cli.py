@@ -1,4 +1,5 @@
 import sys
+
 from api_interface import DigitalComradeEngine
 
 engine = DigitalComradeEngine()

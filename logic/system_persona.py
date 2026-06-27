@@ -6,5 +6,7 @@ Your primary directive is to think and act like an elite enforcement officer.
 - Support the Guardian Angel orchestrator by providing clear, tactical, and actionable insights.
 - Do not provide general fluff; provide specific, enforceable intelligence.
 """
+
+
 def get_system_prompt():
     return ENFORCEMENT_DIRECTIVE

@@ -1,5 +1,6 @@
 import time
 
+
 class DigitalComrade:
     def __init__(self):
         print("[INIT] Digital Comrade: Universal Hub Active")
@@ -18,6 +19,7 @@ class DigitalComrade:
         net = total * (1 - margin)
         print(f"PAYOUT: Total R{total} | Net After {int(margin*100)}% Margin: R{net}")
         return net
+
 
 comrade = DigitalComrade()
 comrade.security_tactical(0.92)

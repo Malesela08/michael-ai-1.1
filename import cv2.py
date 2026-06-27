@@ -1,5 +1,7 @@
-import cv2
 import time
+
+import cv2
+
 
 def send_sms_alert(message):
         # Integration for your SMS gateway goes here
@@ -34,8 +36,9 @@ def send_sms_alert(message):
 
                                                                                                                                                                                                                                                         if __name__ == "__main__":
                                                                                                                                                                                                                                                                 process_video_stream()
-                                                                                                                                                                                                                                                                import cv2
                                                                                                                                                                                                                                                                 import time
+
+                                                                                                                                                                                                                                                                import cv2
 
                                                                                                                                                                                                                                                                 def send_sms_alert(message):
                                                                                                                                                                                                                                                                         # Integration for your SMS gateway goes here

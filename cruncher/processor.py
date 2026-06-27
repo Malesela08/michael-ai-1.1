@@ -1,11 +1,13 @@
-import sys
 import json
+import sys
+
 
 def clean_vs_code_stream(raw_data):
     # Strip unnecessary VS Code metadata and artifacts
     # This keeps only the actionable code for the AI
     clean_data = raw_data.strip()
     return clean_data
+
 
 if __name__ == "__main__":
     try:

@@ -1,1 +1,1 @@
-print('Stealth Sentinel Active')
+print("Stealth Sentinel Active")

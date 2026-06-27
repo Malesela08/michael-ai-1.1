@@ -1,13 +1,17 @@
-import os
 import logging
+import os
 
-logging.basicConfig(filename='guardian_integrity.log', level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    filename="guardian_integrity.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
 
 def scan_guardian_brain():
     print("Initiating deep scan...")
     logging.info("Deep scan initiated.")
-    targets = ['logic/', 'left_brain/', 'right_brain/', 'digital-brain/']
+    targets = ["logic/", "left_brain/", "right_brain/", "digital-brain/"]
 
     for target in targets:
         try:
@@ -22,6 +26,7 @@ def scan_guardian_brain():
 
     print("Scan complete. Log saved to guardian_integrity.log.")
     logging.info("Scan complete.")
+
 
 if __name__ == "__main__":
     scan_guardian_brain()

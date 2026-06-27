@@ -1,11 +1,11 @@
-from rtlsdr import RtlSdr
 import numpy as np
+from rtlsdr import RtlSdr
 
 # Connect to the hardware
 sdr = RtlSdr()
 sdr.sample_rate = 2.048e6
 sdr.center_freq = 433.92e6
-sdr.gain = 'auto'
+sdr.gain = "auto"
 
 print("Spectrum Analyst is active. Watching for anomalies...")
 
@@ -16,4 +16,3 @@ try:
             print("ALERT: Unauthorized radio activity detected!")
 except KeyboardInterrupt:
     sdr.close()
-

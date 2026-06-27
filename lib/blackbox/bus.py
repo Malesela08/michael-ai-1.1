@@ -1,5 +1,6 @@
 import json
 
+
 class BlackBoxBus:
     def __init__(self):
         self._secure_channel = {}
