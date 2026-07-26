@@ -1,1 +1,9 @@
 SIGNAL_LOG: TEST -> Global system integration active
+{"status": "linked", "node_sync": "9/9_active"}
+{"status": "linked", "node_sync": "9/9_active"}
+{"timestamp": "2026-07-24T09:36:56.449745", "controller": "Frontal_Lobe", "direction": "INGRESS", "source": "Community_Access_Gate_01", "payload": {"event": "Vehicle Entry Request", "node": "Vision_YOLOv8"}, "investigation_status": "CLEARED_AND_DISPATCHED"}
+{"timestamp": "2026-07-24T09:36:56.450843", "controller": "Frontal_Lobe", "direction": "EGRESS", "source": "Alert_Dispatcher", "payload": {"event": "SMS Broadcast to Security Team", "status": "DISPATCHED"}, "investigation_status": "CLEARED_AND_DISPATCHED"}
+{"timestamp": "2026-07-24T10:37:56.926913", "controller": "Frontal_Lobe", "direction": "INGRESS", "source": "Gate_01", "payload": {"visitor_name": "Scheduled Contractor", "has_appointment": true, "suspicious_behavior": false}, "hitl_decision": "AUTO_CLEARED", "investigation_status": "CLEARED_AND_DISPATCHED"}
+{"timestamp": "2026-07-24T10:37:56.929024", "controller": "Frontal_Lobe", "direction": "INGRESS", "source": "Gate_02", "payload": {"visitor_name": "Unregistered Individual", "has_appointment": false, "suspicious_behavior": true}, "hitl_decision": "ALERT_HUMAN_SECURITY", "investigation_status": "CLEARED_AND_DISPATCHED"}
+{"timestamp": "2026-07-24T10:38:44.349093", "module": "Human_In_The_Loop", "visitor": "Delivery Service", "has_appointment": true, "suspicious_behavior": false, "action_taken": "AUTO_CLEARED"}
+{"timestamp": "2026-07-24T10:38:44.349389", "module": "Human_In_The_Loop", "visitor": "Unknown Individual", "has_appointment": false, "suspicious_behavior": true, "action_taken": "ALERT_HUMAN_SECURITY"}
