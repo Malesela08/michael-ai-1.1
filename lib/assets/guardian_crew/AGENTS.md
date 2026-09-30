@@ -31,18 +31,17 @@ This ensures generated code always matches the version actually installed, not s
 - **`reasoning=True`** agent parameter for reflect-then-act behavior
 - **`multimodal=True`** agent parameter for vision/image support
 - **A2A (Agent-to-Agent) protocol** support with agent cards and task execution utilities (v1.8.0+)
-- **Native OpenAI Responses API** support (v1.9.0+)
 - **Structured outputs / `response_format`** across all LLM providers (v1.9.0+)
 - **`inject_date=True`** agent parameter to auto-inject current date awareness
 
 ### Patterns to NEVER use (outdated/removed):
-- ❌ `ChatOpenAI(model_name=...)` → ✅ `LLM(model="openai/gpt-4o")`
-- ❌ `Agent(llm=ChatOpenAI(...))` → ✅ `Agent(llm="openai/gpt-4o")` or `Agent(llm=LLM(model="..."))`
+- ❌ `ChatOpenAI(model_name=...)` → ✅ `LLM(model="ollama/llama3.2")`
+- ❌ `Agent(llm=ChatOpenAI(...))` → ✅ `Agent(llm="ollama/llama3.2")` or `Agent(llm=LLM(model="..."))`
 - ❌ Passing raw OpenAI client objects → ✅ Use `crewai.LLM` wrapper
 
 ### How to verify you're using current patterns:
 1. You ran the version check and docs lookup steps above before writing code
-2. All LLM references use `crewai.LLM` or string shorthand (`"openai/gpt-4o"`)
+2. All LLM references use `crewai.LLM` or string shorthand (`"ollama/llama3.2"`)
 3. All tool imports come from `crewai.tools` or `crewai_tools`
 4. Crew classes use `@CrewBase` decorator with YAML config files
 5. Python >=3.10, <3.14
@@ -153,7 +152,7 @@ researcher:
     the latest developments in {topic}. Known for your ability
     to find the most relevant information.
   # Optional YAML-level settings:
-  # llm: openai/gpt-4o
+  # llm: ollama/llama3.2
   # max_iter: 20
   # max_rpm: 10
   # verbose: true
@@ -369,7 +368,7 @@ Returns `LiteAgentOutput` with: `.raw`, `.pydantic`, `.agent_role`, `.usage_metr
 from crewai import LLM
 
 # String shorthand (simplest)
-agent = Agent(llm="openai/gpt-4o", ...)
+agent = Agent(llm="ollama/llama3.2", ...)
 
 # Full configuration with crewai.LLM
 llm = LLM(
@@ -381,7 +380,7 @@ agent = Agent(llm=llm, ...)
 
 # Provider format: "provider/model-name"
 # Examples:
-#   "openai/gpt-4o"
+#   "ollama/llama3.2"
 #   "anthropic/claude-sonnet-4-20250514"
 #   "google/gemini-2.0-flash"
 #   "ollama/llama3"
@@ -1007,7 +1006,7 @@ crewai run                    # Execute
 
 ## Common Pitfalls
 
-- **Using `ChatOpenAI()`** — Always use `crewai.LLM` or string shorthand like `"openai/gpt-4o"`
+- **Using `ChatOpenAI()`** — Always use `crewai.LLM` or string shorthand like `"ollama/llama3.2"`
 - Forgetting `# type: ignore[index]` on config dictionary access in crew classes
 - Agent/task method names not matching YAML keys
 - Missing `expected_output` in task configuration (required)
