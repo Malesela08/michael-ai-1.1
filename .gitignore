@@ -1,2 +1,4 @@
 config.py
 YOUR_FILE_NAME
+__pycache__/
+*.pyc
