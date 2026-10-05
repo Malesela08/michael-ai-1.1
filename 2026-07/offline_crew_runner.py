@@ -2,7 +2,7 @@ import os
 
 class OfflineIntelligenceRoom:
     def __init__(self):
-        self.system = "Guardian Angel AI - Offline Intelligence Core"
+        self.system = "Michael AI AI - Offline Intelligence Core"
         # Force local execution settings for CrewAI & LangChain
         os.environ["OPENAI_API_KEY"] = "not-needed-offline"
         os.environ["CREWAI_STORAGE_DIR"] = "./frontal_lobe/crew_memory"

@@ -13,7 +13,7 @@ def run_orchestrator(log_message):
     threat_detected = analyze_log_entry(log_message)
 
     if threat_detected:
-        print("!!! SECURITY THREAT IDENTIFIED: Triggering Guardian Angel Protocols !!!")
+        print("!!! SECURITY THREAT IDENTIFIED: Triggering Michael AI Protocols !!!")
         # Trigger Twinny Stealth Mode
         # twinny_stealth.activate()
         print("Twinny Stealth Mode: ACTIVE")

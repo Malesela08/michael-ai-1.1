@@ -18,4 +18,4 @@ def push_to_phone(title, message):
 
 if __name__ == "__main__":
     print("Sending test notification...")
-    push_to_phone("Guardian Angel", "Direct connection established!")
+    push_to_phone("Michael AI", "Direct connection established!")

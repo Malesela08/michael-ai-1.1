@@ -3,7 +3,7 @@ import numpy as np
 
 
 def run_guardian():
-    print("Guardian Angel AI: Analysis engine active...")
+    print("Michael AI AI: Analysis engine active...")
     cap = cv2.VideoCapture("test_video.mp4")
 
     # Background subtractor to detect motion

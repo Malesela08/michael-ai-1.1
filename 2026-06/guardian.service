@@ -3,7 +3,7 @@ Description=Security Guardian AI
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /workspaces/guardian-angel-ai4/security_system.py
+ExecStart=/usr/bin/python3 /workspaces/michael-ai-ai4/security_system.py
 Restart=always
 User=root
 

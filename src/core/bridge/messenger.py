@@ -5,7 +5,7 @@
 def dispatch_emergency_alert(location, threat_level):
     """
     Handles the transmission of emergency data to authorities.
-    This is the final exit point of the Guardian Angel AI.
+    This is the final exit point of the Michael AI AI.
     """
     print(f"BRIDGE: Initiating emergency protocol for {location}...")
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$1" == "lockoff" ]; then
     echo "--- Initiating Complete Stealth Mode ---"
-    pkill -f guardian-angel
+    pkill -f michael-ai
     history -c && history -w
     rm -rf /tmp/guardian_logs/*
     echo "--- System is now Dark/Invisible ---"
