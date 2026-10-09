@@ -1,23 +1,13 @@
-import requests
+import json
+from typing import Any
 
-from src.core.config import DEFAULT_MODEL, OLLAMA_HOST
+from corpus_callosum import CorpusCallosum
 
-OLLAMA_URL = f"{OLLAMA_HOST}/api/generate"
 
-def query_lamla(prompt_text):
-    payload = {
-        "model": DEFAULT_MODEL,
-        "prompt": prompt_text,
-        "stream": False
-    }
-    
-    try:
-        response = requests.post(OLLAMA_URL, json=payload, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        return result.get("response", "No response generated.")
-    except requests.exceptions.RequestException as e:
-        return f"Error communicating with local Ollama server: {e}"
+def query_lamla(prompt_text: str) -> dict[str, Any]:
+    """Route a user request through the Corpus Callosum and its registered tools."""
+    bridge = CorpusCallosum()
+    return bridge.route_intent(prompt_text)
 
 if __name__ == "__main__":
     print("Initializing Lamla Master Orchestrator...")
@@ -25,4 +15,4 @@ if __name__ == "__main__":
     print(f"\nPrompt: {test_prompt}\n")
     
     answer = query_lamla(test_prompt)
-    print(f"Lamla Response:\n{answer}")
+    print(f"Lamla Response:\n{json.dumps(answer, indent=2)}")

@@ -1,6 +1,8 @@
 import ollama
 
-MODEL_NAME = "llama3.2"
+from src.core.config import DEFAULT_MODEL
+
+MODEL_NAME = DEFAULT_MODEL
 
 def query_digital_brain(prompt: str, system_prompt: str = "You are Michael AI's core tactical engine."):
     try:
@@ -13,7 +15,7 @@ def query_digital_brain(prompt: str, system_prompt: str = "You are Michael AI's 
         )
         return response['message']['content']
     except Exception as e:
-        return f"[TACTICAL OVERRIDE ACTIVE]: Evasion protocol engaged. Maintain 50km/h, execute 3 sharp evasive turns, clear active perimeter, and broadcast encrypted telemetry."
+        return "Unable to generate tactical advice because the Ollama request failed."
 
 def dispatch_emergency_alert(location: str, threat_level: str):
     print(f"BRIDGE: Initiating emergency protocol for {location} (Threat: {threat_level})...")

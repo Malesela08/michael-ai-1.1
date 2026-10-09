@@ -1,7 +1,7 @@
 {
   "name": "Michael AI Environment",
   "image": "mcr.microsoft.com/devcontainers/python:3.10",
-  "postCreateCommand": "curl -fsSL https://ollama.com/install.sh | sh && ollama serve > ollama.log 2>&1 & sleep 3 && ollama pull llama3.2:1b",
+  "postCreateCommand": "curl -fsSL https://ollama.com/install.sh | sh && ollama serve > ollama.log 2>&1 & sleep 3 && ollama pull llama3",
   "customizations": {
     "vscode": {
       "extensions": [
