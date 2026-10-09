@@ -1,6 +1,8 @@
 import json
 import ollama
 
+from src.core.config import DEFAULT_MODEL
+
 def read_system_status(component: str) -> str:
     """Retrieves status of a system component."""
     status_db = {
@@ -29,7 +31,7 @@ def run_agent(user_prompt: str):
 
     while True:
         response = ollama.chat(
-            model="llama3.2",
+            model=DEFAULT_MODEL,
             messages=messages,
             tools=[read_system_status, run_diagnostic_action]
         )

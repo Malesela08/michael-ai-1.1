@@ -1,11 +1,11 @@
-# brain/coordinator.py
-from safety.kill_switch import activate_emergency_shutdown
+from collections.abc import Callable
 
 
-def run_main_intelligence():
-    # 1. ALWAYS check safety first
+def run_main_intelligence(
+    system_status: str, activate_emergency_shutdown: Callable[[], None]
+) -> None:
     if system_status == "EMERGENCY_SHUTDOWN":
         activate_emergency_shutdown()
-        return  # Stop everything immediately
+        return
 
-    # ... proceed to threat detection ...
+    # Threat detection continues in the coordinator.

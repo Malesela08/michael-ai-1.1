@@ -1,13 +1,14 @@
 import asyncio
+from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 
 async def run():
-    # Connect to the running left_brain server
+    server_path = Path(__file__).resolve().parents[1] / "src" / "brain" / "left_brain" / "server.py"
     server_params = StdioServerParameters(
-        command="python3", args=["left_brain/server.py"]
+        command="python3", args=[str(server_path)]
     )
 
     async with stdio_client(server_params) as (read, write):
@@ -17,7 +18,8 @@ async def run():
 
             # Send a test command to the brain
             result = await session.call_tool(
-                "process_data", arguments={"data": "Hello Brain!"}
+                "analyze_hijack_risk",
+                arguments={"vehicle_id": "CAR-123", "status": "THREAT_DETECTED"},
             )
             print(f"Result from Left Brain: {result}")
 

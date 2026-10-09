@@ -1,17 +1,18 @@
 import requests
-import json
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+from src.core.config import DEFAULT_MODEL, OLLAMA_HOST
+
+OLLAMA_URL = f"{OLLAMA_HOST}/api/generate"
 
 def query_lamla(prompt_text):
     payload = {
-        "model": "lamla",
+        "model": DEFAULT_MODEL,
         "prompt": prompt_text,
         "stream": False
     }
     
     try:
-        response = requests.post(OLLOWN_URL if 'OLLOWN_URL' in globals() else OLLAMA_URL, json=payload)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=30)
         response.raise_for_status()
         result = response.json()
         return result.get("response", "No response generated.")

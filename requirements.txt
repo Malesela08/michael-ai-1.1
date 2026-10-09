@@ -1,0 +1,14 @@
+# Dependencies imported by the Python tools and services in this workspace.
+crewai
+langchain-community
+mcp
+numpy
+ollama
+opencv-python
+pyrtlsdr
+requests
+spacy
+torch
+
+# Optional spaCy language model for 2026-06/nlp_engine.py:
+# python -m spacy download en_core_web_sm
