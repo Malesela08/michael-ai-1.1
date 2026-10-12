@@ -6,8 +6,22 @@ from vision_agent import VisionAgent
 
 def test_create_hub_registers_available_tools():
     hub = create_hub()
-    assert {"water_meter", "perimeter_camera"} <= hub.registered_tools.keys()
+    assert {
+        "water_meter",
+        "perimeter_camera",
+        "forensic_vault",
+        "relay_controller",
+        "can_interceptor",
+    } <= hub.registered_tools.keys()
     assert "yolo_vision" in hub.agent_handlers
+    assert hub.active_agents["forensic_vault"]["status"] == "configured"
+    assert hub.active_agents["active_interception"]["status"] == "configured"
+    assert hub.active_agents["can_ecu_interceptor"]["status"] == "configured"
+    assert {
+        "forensic_vault",
+        "active_interception",
+        "can_ecu_interceptor",
+    } <= hub.agent_handlers.keys()
 
 
 def test_water_meter_does_not_claim_placeholder_reading_is_live():
@@ -15,6 +29,14 @@ def test_water_meter_does_not_claim_placeholder_reading_is_live():
         "status": "unavailable",
         "message": "No municipal water-meter data provider is configured.",
     }
+
+
+def test_hub_can_route_does_not_claim_live_vehicle_telemetry():
+    result = create_hub().route_intent("Check vehicle CAN bus status.")
+
+    assert result["status"] == "simulation_only"
+    assert result["metrics"] is None
+    assert result["hardware_read"] is False
 
 
 def test_camera_tool_reports_missing_stream_configuration(monkeypatch):

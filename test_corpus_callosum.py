@@ -34,10 +34,22 @@ def test_can_request_does_not_claim_secure_without_provider():
 
 def test_can_request_uses_registered_provider():
     bridge = CorpusCallosum()
-    bridge.register_tool("can_interceptor", lambda prompt: {"prompt": prompt})
+    bridge.register_tool(
+        "can_interceptor",
+        lambda command: {"command": command},
+    )
     assert bridge.route_intent("Check vehicle CAN bus status.") == {
-        "prompt": "check vehicle can bus status."
+        "command": "read_telemetry"
     }
+
+
+def test_can_route_passes_explicit_command_context():
+    bridge = CorpusCallosum()
+    bridge.register_tool("can_interceptor", lambda command: {"command": command})
+    assert bridge.route_intent(
+        "Check vehicle CAN bus status.",
+        context={"command": "invalid"},
+    ) == {"command": "invalid"}
 
 
 def test_rf_request_does_not_claim_clear_without_provider():
@@ -89,3 +101,60 @@ def test_registering_can_handler_updates_pillar_without_claiming_device_online()
     assert bridge.active_agents["can_ecu_interceptor"]["status"] == "configured"
     result = bridge.route_intent("Show all agent status")
     assert result["pillars"]["can_ecu_interceptor"]["status"] == "configured"
+
+
+def test_forensic_request_routes_context_payload_to_registered_vault():
+    bridge = CorpusCallosum()
+    received = {}
+
+    def store_evidence(*, payload):
+        received["payload"] = payload
+        return {"status": "recorded"}
+
+    bridge.register_tool("forensic_vault", store_evidence)
+    assert bridge.route_intent(
+        "Store this incident evidence",
+        context={"payload": {"event": "alarm"}},
+    ) == {"status": "recorded"}
+    assert received["payload"] == {"event": "alarm"}
+
+
+def test_relay_request_uses_registered_handler_in_simulation_only():
+    bridge = CorpusCallosum()
+    bridge.register_tool(
+        "relay_controller",
+        lambda action: {
+            "status": "simulation_only",
+            "action": action,
+            "hardware_actuated": False,
+        },
+    )
+
+    result = bridge.route_intent(
+        "Trigger perimeter siren",
+        context={"action": "perimeter_siren"},
+    )
+    assert result == {
+        "status": "simulation_only",
+        "action": "perimeter_siren",
+        "hardware_actuated": False,
+    }
+
+
+def test_relay_trigger_prompt_selects_matching_simulated_relay():
+    bridge = CorpusCallosum()
+    received = {}
+
+    def handle_relay(*, action):
+        received["action"] = action
+        return {"status": "simulation_only", "action": action}
+
+    bridge.register_tool("relay_controller", handle_relay)
+
+    result = bridge.route_intent("Trigger perimeter siren")
+
+    assert received["action"] == "perimeter_siren"
+    assert result == {
+        "status": "simulation_only",
+        "action": "perimeter_siren",
+    }

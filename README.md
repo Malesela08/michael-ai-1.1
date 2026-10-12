@@ -20,6 +20,14 @@ camera-frame capture, and local image processing.
   readings or claiming a system is secure.
 - Captures one frame from a local image, video source, or configured camera
   stream and calculates mean grayscale brightness.
+- Stores locally submitted forensic payloads as JSON records with SHA-256
+  checksums. Records are **not encrypted or tamper-proof**; do not store secrets
+  or rely on this as a legally defensible evidence chain.
+- Simulates relay state requests in memory only. The relay handler is not
+  connected to ignition, gate, siren, or other physical hardware.
+- Registers the forensic vault, relay simulation, and CAN telemetry simulation
+  as agent handlers and local hub tools. The CAN handler does not read a bus;
+  its metrics are unavailable until a real interface is implemented.
 - Returns the current pillar registry for agent/status queries.
 - Uses a local Ollama model as a fallback for prompts that do not match a
   deterministic route.

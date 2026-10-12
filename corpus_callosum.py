@@ -49,7 +49,7 @@ class CorpusCallosum:
             },
             "forensic_vault": {
                 "status": "unavailable",
-                "description": "Encrypted Forensic Evidence Vault",
+                "description": "Local forensic evidence vault with SHA-256 checksums",
             },
             "iot_m2m_sim": {
                 "status": "unavailable",
@@ -91,6 +91,8 @@ class CorpusCallosum:
             "perimeter_camera": "yolo_vision",
             "can_interceptor": "can_ecu_interceptor",
             "rf_monitor": "rf_spectrum_monitor",
+            "forensic_vault": "forensic_vault",
+            "relay_controller": "active_interception",
         }.get(name)
         if pillar_for_tool:
             self.active_agents[pillar_for_tool]["status"] = "configured"
@@ -100,6 +102,8 @@ class CorpusCallosum:
             "perimeter_camera",
             "can_interceptor",
             "rf_monitor",
+            "forensic_vault",
+            "relay_controller",
         }:
             self.active_agents["mcp_bridges"] = {
                 "status": "local_tools_registered",
@@ -125,7 +129,12 @@ class CorpusCallosum:
 
         if re.search(r"\b(can|ecu|vehicle)\b", prompt_lower):
             if "can_interceptor" in self.registered_tools:
-                return self.registered_tools["can_interceptor"](prompt_lower)
+                command = (
+                    context.get("command", "read_telemetry")
+                    if context
+                    else "read_telemetry"
+                )
+                return self.registered_tools["can_interceptor"](command=command)
             return {
                 "status": "unavailable",
                 "module": "CAN Bus & ECU Telemetry Interceptor",
@@ -139,6 +148,41 @@ class CorpusCallosum:
                 "status": "unavailable",
                 "module": "RF Spectrum & Anti-Jamming Monitor",
                 "message": "No RF spectrum monitoring provider is configured.",
+            }
+
+        if re.search(r"\b(relay|immobilizer|siren|gate|ignition)\b", prompt_lower):
+            if "relay_controller" in self.registered_tools:
+                action = context.get("action") if context else None
+                if action is None:
+                    action = "status"
+                    action_requested = re.search(
+                        r"\b(trigger|activate|engage|open|close|lock|unlock|arm|disarm)\b",
+                        prompt_lower,
+                    )
+                    if action_requested:
+                        if re.search(r"\b(immobilizer|fuel pump|ignition)\b", prompt_lower):
+                            action = "fuel_pump_immobilizer"
+                        elif "siren" in prompt_lower:
+                            action = "perimeter_siren"
+                        elif "gate" in prompt_lower:
+                            action = "electric_gate"
+                return self.registered_tools["relay_controller"](action=action)
+            return {
+                "status": "unavailable",
+                "module": "Relay Controller",
+                "message": "No relay simulation handler is configured.",
+            }
+
+        if re.search(r"\b(forensic|evidence|incident)\b", prompt_lower):
+            if "forensic_vault" in self.registered_tools:
+                payload = context.get("payload") if context else None
+                if payload is None:
+                    payload = {"prompt": prompt}
+                return self.registered_tools["forensic_vault"](payload=payload)
+            return {
+                "status": "unavailable",
+                "module": "Forensic Evidence Vault",
+                "message": "No forensic evidence storage handler is configured.",
             }
 
         if re.search(r"\b(camera|cameras|perimeter|scan|security)\b", prompt_lower):
