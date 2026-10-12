@@ -2,7 +2,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-import cv2
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 import numpy as np
 
 
@@ -33,6 +36,15 @@ class VisionAgent:
                 "message": (
                     "No active video stream, image path, or camera URL configured."
                 ),
+            }
+        if cv2 is None:
+            return {
+                "status": "unavailable",
+                "zone": zone,
+                "inference_status": "unavailable",
+                "threat_detected": None,
+                "gait_profile": "unavailable",
+                "message": "OpenCV is required to read or capture video frames.",
             }
 
         source_text = os.fspath(source)

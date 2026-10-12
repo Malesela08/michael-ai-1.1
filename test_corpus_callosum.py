@@ -2,13 +2,8 @@ from orchestrator import query_lamla
 from corpus_callosum import CorpusCallosum
 
 
-def fail_if_ollama_is_called(*args, **kwargs):
-    raise AssertionError("Perimeter tool routing should not require Ollama.")
-
-
-def test_orchestrator_routes_perimeter_request_without_ollama(monkeypatch):
+def test_orchestrator_routes_perimeter_request(monkeypatch):
     monkeypatch.delenv("CAMERA_RTSP_URL", raising=False)
-    monkeypatch.setattr("main.OllamaClient.generate", fail_if_ollama_is_called)
     result = query_lamla("Check the North zone perimeter.")
     assert result["status"] == "unavailable"
     assert result["inference_status"] == "unavailable"
@@ -17,7 +12,6 @@ def test_orchestrator_routes_perimeter_request_without_ollama(monkeypatch):
 
 def test_perimeter_request_without_zone_uses_default_zone(monkeypatch):
     monkeypatch.delenv("CAMERA_RTSP_URL", raising=False)
-    monkeypatch.setattr("main.OllamaClient.generate", fail_if_ollama_is_called)
     result = query_lamla("Check the perimeter.")
     assert result["zone"] == "North"
     assert result["inference_status"] == "unavailable"
@@ -83,6 +77,28 @@ def test_status_reports_all_thirteen_pillars_as_json_serializable():
     assert result["pillars"]["yolo_vision"]["status"] == "registered"
     assert result["pillars"]["can_ecu_interceptor"]["status"] == "unavailable"
     json.dumps(result)
+
+
+def test_unmatched_prompt_reports_no_available_route():
+    assert CorpusCallosum().route_intent("Give me a tactical summary.") == {
+        "status": "error",
+        "message": "No matching route or active agent handler available.",
+    }
+
+
+def test_unmatched_prompt_uses_configured_text_generation_client():
+    class FakeClient:
+        def generate(self, prompt):
+            return {"status": "active", "response": prompt}
+
+    result = CorpusCallosum(llm_client=FakeClient()).route_intent(
+        "Give me a tactical summary."
+    )
+
+    assert result == {
+        "status": "active",
+        "response": "Give me a tactical summary.",
+    }
 
 
 def test_registering_tool_does_not_claim_mcp_server_is_connected():
@@ -158,29 +174,3 @@ def test_relay_trigger_prompt_selects_matching_simulated_relay():
         "status": "simulation_only",
         "action": "perimeter_siren",
     }
-
-
-def test_ollama_status_route_calls_registered_handler():
-    bridge = CorpusCallosum()
-    bridge.register_tool(
-        "ollama_engine",
-        lambda payload=None: {"status": "active", "model": "llama3.2"},
-    )
-    assert bridge.route_intent("Check Ollama status.") == {
-        "status": "active",
-        "model": "llama3.2",
-    }
-
-
-def test_status_includes_ollama_engine_health_separately_from_thirteen_pillars():
-    import json
-
-    bridge = CorpusCallosum()
-    bridge.register_tool(
-        "ollama_engine",
-        lambda payload=None: {"status": "model_unavailable", "model": "llama3.2"},
-    )
-    result = bridge.route_intent("Show all agent status")
-    assert len(result["pillars"]) == 13
-    assert result["ollama_engine"]["status"] == "model_unavailable"
-    json.dumps(result)

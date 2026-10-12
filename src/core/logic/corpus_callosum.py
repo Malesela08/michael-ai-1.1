@@ -1,25 +1,11 @@
 import queue
 
-import ollama
-
-from src.core.config import DEFAULT_MODEL
 from src.core.logic.maintenance_crew import maintenance_crew
-from src.core.logic.system_persona import get_system_prompt
 
 
 class CorpusCallosum:
     def __init__(self):
         self.message_bus = queue.Queue()
-
-    def query_model(self, prompt, model_name=DEFAULT_MODEL):
-        response = ollama.chat(
-            model=model_name,
-            messages=[
-                {"role": "system", "content": get_system_prompt()},
-                {"role": "user", "content": prompt},
-            ],
-        )
-        return response["message"]["content"]
 
     def send_signal(self, sender, data):
         payload = {"from": sender, "payload": data}

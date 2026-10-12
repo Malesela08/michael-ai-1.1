@@ -10,7 +10,7 @@ class OfflineIntelligenceRoom:
 
     def deploy_offline_crews(self):
         # Crew 1: Morning Check-In & Driver Support Agent
-        print("[Crew 1 - Morning Logistics]: Linked to local Ollama engine. Ready for pre-trip schedules.")
+        print("[Crew 1 - Morning Logistics]: Ready for pre-trip schedules.")
         
         # Crew 2: Parietal Lobe & Resident Verification Agent
         print("[Crew 2 - Parietal Resident Guard]: Linked to local biometric registry. Ready.")

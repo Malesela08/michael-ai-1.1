@@ -5,8 +5,7 @@ from typing import Any
 from can_ecu_agent import CanEcuInterceptorHandler
 from corpus_callosum import CorpusCallosum
 from forensic_vault import ForensicVaultHandler
-from ollama_engine import OllamaEngineHandler
-from ollama_client import OllamaClient
+from llamafile_client import LlamafileClient
 from relay_controller import RelayControllerHandler
 from vision_agent import VisionAgent
 
@@ -26,15 +25,11 @@ def scan_perimeter_camera(zone: str = "North") -> dict[str, Any]:
 
 def create_hub() -> CorpusCallosum:
     """Create the central router and register the currently implemented tools."""
-    callosum = CorpusCallosum(
-        ollama_client=OllamaClient(default_model="llama3.2"),
-        model="llama3.2",
-    )
+    callosum = CorpusCallosum(llm_client=LlamafileClient())
     vision_agent = VisionAgent()
     vault_handler = ForensicVaultHandler()
     relay_handler = RelayControllerHandler()
     can_handler = CanEcuInterceptorHandler()
-    ollama_engine = OllamaEngineHandler(model="llama3.2")
     callosum.register_tool("water_meter", query_water_meter)
     callosum.register_agent(
         "yolo_vision",
@@ -63,13 +58,6 @@ def create_hub() -> CorpusCallosum:
         {"interface": can_handler.interface, "mode": "simulation_only"},
     )
     callosum.register_tool("can_interceptor", can_handler.handle)
-    callosum.register_tool("ollama_engine", ollama_engine.handle)
-    callosum.register_agent(
-        "ollama_engine",
-        ollama_engine.handle,
-        {"provider": "local_ollama", "model": ollama_engine.model},
-        include_in_pillars=False,
-    )
     return callosum
 
 

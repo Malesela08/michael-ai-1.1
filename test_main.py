@@ -12,7 +12,6 @@ def test_create_hub_registers_available_tools():
         "forensic_vault",
         "relay_controller",
         "can_interceptor",
-        "ollama_engine",
     } <= hub.registered_tools.keys()
     assert "yolo_vision" in hub.agent_handlers
     assert hub.active_agents["forensic_vault"]["status"] == "configured"
@@ -22,10 +21,9 @@ def test_create_hub_registers_available_tools():
         "forensic_vault",
         "active_interception",
         "can_ecu_interceptor",
-        "ollama_engine",
     } <= hub.agent_handlers.keys()
-    assert "ollama_engine" not in hub.active_agents
     assert len(hub.active_agents) == 13
+    assert hub.llm_client is not None
 
 
 def test_water_meter_does_not_claim_placeholder_reading_is_live():
@@ -103,14 +101,10 @@ def test_camera_stream_configuration_is_passed_to_camera_probe(monkeypatch):
     assert result["zone"] == "South"
 
 
-def test_cli_routes_water_meter_request_without_ollama(monkeypatch):
-    monkeypatch.setattr("sys.argv", ["main.py", "check", "water", "meter"])
-    monkeypatch.setattr(
-        "main.OllamaClient.generate",
-        lambda *args, **kwargs: (_ for _ in ()).throw(
-            AssertionError("Water meter routing should not require Ollama.")
-        ),
-    )
+def test_cli_routes_water_meter_request(monkeypatch):
+    import sys
+
+    monkeypatch.setattr(sys, "argv", ["main.py", "check", "water", "meter"])
 
     result = main()
     assert result == {

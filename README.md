@@ -29,22 +29,16 @@ camera-frame capture, and local image processing.
   as agent handlers and local hub tools. The CAN handler does not read a bus;
   its metrics are unavailable until a real interface is implemented.
 - Returns the current pillar registry for agent/status queries.
-- Uses a local Ollama model as a fallback for prompts that do not match a
-  deterministic route.
-- Reports Ollama daemon/model status through the `ollama_engine` route and can
-  run explicit inference requests; failed requests remain unavailable instead
-  of being replaced by a simulated response.
-- Adds readable UTF-8 project files to every Ollama inference prompt as
-  untrusted context. Generated environments, binary files, and common local
-  secret files (`.env` and private-key formats) are excluded.
+- Uses a local llamafile server as the text-generation fallback for prompts
+  that do not match a deterministic route.
 
 ## Requirements
 
 - Python 3.10 or newer.
 - The Python packages in `requirements.txt`.
-- Ollama with the configured `llama3.2` model for prompts that use the LLM
-  fallback. Project file context is sent only to the configured Ollama endpoint.
-  The deterministic water/camera/CAN/RF routes do not require Ollama.
+- The llamafile runner at `bin/llamafile` and a GGUF model at
+  `models/model.gguf`, started separately for text-generation fallback. These
+  large runtime artifacts are local and are not tracked in Git.
 - A camera stream or local image/video file for frame capture. Camera hardware
   is optional.
 
@@ -69,6 +63,21 @@ On Windows PowerShell, activate the environment with:
 ```
 
 ## Configure and run
+
+Start the local llamafile server:
+
+```bash
+./bin/llamafile -m ./models/model.gguf -b 127.0.0.1 --port 8080
+```
+
+Then run Michael AI in another terminal. By default it requests
+`http://127.0.0.1:8080/v1`. `LLAMAFILE_BASE_URL` can select another loopback
+address only; non-local endpoints are rejected to keep text generation on the
+edge runtime. Set `LLAMAFILE_MODEL` to override the model label if required.
+
+```bash
+python main.py "Give me a tactical summary"
+```
 
 Set `CAMERA_RTSP_URL` to a camera stream if you want the perimeter route to
 attempt a frame capture. Do not commit camera credentials or `.env` files.
@@ -102,6 +111,3 @@ state, not live health checks for connected hardware.
 ```bash
 python -m pytest -q
 ```
-
-The Ollama integration test is skipped when its local service or configured
-model is not available.

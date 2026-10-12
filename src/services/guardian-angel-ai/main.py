@@ -10,7 +10,7 @@ if __name__ == "__main__":
     
     if not os.path.exists(target_file):
         with open(target_file, "w", encoding="utf-8") as f:
-            f.write("System online. Ready for local Ollama and CrewAI data processing.")
+            f.write("System online. Ready for CrewAI data processing.")
 
     chunks = climatize_file(target_file)
     if chunks:

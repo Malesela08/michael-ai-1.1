@@ -1,16 +1,17 @@
 import re
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Protocol
+
+
+class TextGenerationClient(Protocol):
+    def generate(self, prompt: str) -> dict[str, Any]: ...
 
 
 class CorpusCallosum:
     """Central decision engine and registry for Michael AI tools and agents."""
 
-    def __init__(
-        self, ollama_client: Any | None = None, model: str = "llama3.2"
-    ) -> None:
-        self.ollama = ollama_client
-        self.model = model
+    def __init__(self, llm_client: TextGenerationClient | None = None) -> None:
+        self.llm_client = llm_client
         self.registered_tools: dict[str, Callable[..., Any]] = {}
         self.active_agents: dict[str, dict[str, Any]] = {}
         self.agent_handlers: dict[str, Callable[..., Any]] = {}
@@ -119,21 +120,8 @@ class CorpusCallosum:
     def route_intent(
         self, prompt: str, context: dict[str, Any] | None = None
     ) -> Any:
-        """Route known edge requests directly and send other prompts to Ollama."""
+        """Route recognized edge requests to registered local tools."""
         prompt_lower = prompt.lower().strip()
-
-        if re.search(r"\bollama\b", prompt_lower):
-            if "ollama_engine" in self.registered_tools:
-                if re.search(r"\b(status|health|connection)\b", prompt_lower):
-                    return self.registered_tools["ollama_engine"]()
-                payload = context.get("payload") if context else None
-                if payload is None:
-                    payload = {"action": "generate", "prompt": prompt}
-                return self.registered_tools["ollama_engine"](payload)
-            return {
-                "status": "unavailable",
-                "message": "No Ollama engine handler is registered.",
-            }
 
         if "water" in prompt_lower and "meter" in prompt_lower:
             if "water_meter" in self.registered_tools:
@@ -225,12 +213,10 @@ class CorpusCallosum:
                 "corpus_callosum_status": "operational",
                 "pillars": self.active_agents,
             }
-            if "ollama_engine" in self.registered_tools:
-                status["ollama_engine"] = self.registered_tools["ollama_engine"]()
             return status
 
-        if self.ollama:
-            return self.ollama.generate(prompt=prompt)
+        if self.llm_client:
+            return self.llm_client.generate(prompt)
 
         return {
             "status": "error",

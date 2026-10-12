@@ -35,13 +35,13 @@ This ensures generated code always matches the version actually installed, not s
 - **`inject_date=True`** agent parameter to auto-inject current date awareness
 
 ### Patterns to NEVER use (outdated/removed):
-- ❌ `ChatOpenAI(model_name=...)` → ✅ `LLM(model="ollama/llama3.2")`
-- ❌ `Agent(llm=ChatOpenAI(...))` → ✅ `Agent(llm="ollama/llama3.2")` or `Agent(llm=LLM(model="..."))`
+- ❌ `ChatOpenAI(model_name=...)` → ✅ Use the current `crewai.LLM` configuration
+- ❌ `Agent(llm=ChatOpenAI(...))` → ✅ `Agent(llm=LLM(model="provider/model-name"))`
 - ❌ Passing raw OpenAI client objects → ✅ Use `crewai.LLM` wrapper
 
 ### How to verify you're using current patterns:
 1. You ran the version check and docs lookup steps above before writing code
-2. All LLM references use `crewai.LLM` or string shorthand (`"ollama/llama3.2"`)
+2. All LLM references use `crewai.LLM` or the configured provider's string shorthand
 3. All tool imports come from `crewai.tools` or `crewai_tools`
 4. Crew classes use `@CrewBase` decorator with YAML config files
 5. Python >=3.10, <3.14
@@ -152,7 +152,6 @@ researcher:
     the latest developments in {topic}. Known for your ability
     to find the most relevant information.
   # Optional YAML-level settings:
-  # llm: ollama/llama3.2
   # max_iter: 20
   # max_rpm: 10
   # verbose: true
@@ -367,9 +366,6 @@ Returns `LiteAgentOutput` with: `.raw`, `.pydantic`, `.agent_role`, `.usage_metr
 ```python
 from crewai import LLM
 
-# String shorthand (simplest)
-agent = Agent(llm="ollama/llama3.2", ...)
-
 # Full configuration with crewai.LLM
 llm = LLM(
     model="anthropic/claude-sonnet-4-20250514",
@@ -380,15 +376,13 @@ agent = Agent(llm=llm, ...)
 
 # Provider format: "provider/model-name"
 # Examples:
-#   "ollama/llama3.2"
 #   "anthropic/claude-sonnet-4-20250514"
 #   "google/gemini-2.0-flash"
-#   "ollama/llama3"
 #   "groq/llama-3.3-70b-versatile"
 #   "bedrock/anthropic.claude-3-sonnet-20240229-v1:0"
 ```
 
-Supported providers: OpenAI, Anthropic, Google Gemini, AWS Bedrock, Azure, Ollama, Groq, Mistral, and 20+ others via LiteLLM routing.
+Supported providers include OpenAI, Anthropic, Google Gemini, AWS Bedrock, Azure, Groq, Mistral, and others via LiteLLM routing.
 
 Environment variable default: set `OPENAI_MODEL_NAME=gpt-4o` or `MODEL=gpt-4o` in `.env`.
 
@@ -796,18 +790,9 @@ Four memory types work together automatically:
 - **Entity** (RAG): Tracks people, places, concepts
 - **Contextual**: Integrates all types for coherent responses
 
-### Custom Embedding Provider
-```python
-crew = Crew(
-    memory=True,
-    embedder={
-        "provider": "ollama",
-        "config": {"model": "mxbai-embed-large"},
-    },
-)
-```
+Configure an embedding provider only when the project explicitly selects one.
 
-Supported providers: OpenAI (default), Ollama, Google AI, Azure OpenAI, Cohere, VoyageAI, Bedrock, Hugging Face.
+Supported providers: OpenAI, Google AI, Azure OpenAI, Cohere, VoyageAI, Bedrock, Hugging Face.
 
 ---
 
@@ -1006,7 +991,7 @@ crewai run                    # Execute
 
 ## Common Pitfalls
 
-- **Using `ChatOpenAI()`** — Always use `crewai.LLM` or string shorthand like `"ollama/llama3.2"`
+- **Using `ChatOpenAI()`** — Always use the current `crewai.LLM` configuration pattern
 - Forgetting `# type: ignore[index]` on config dictionary access in crew classes
 - Agent/task method names not matching YAML keys
 - Missing `expected_output` in task configuration (required)
