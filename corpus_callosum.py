@@ -1,132 +1,175 @@
-import json
-import logging
 import re
-from typing import Any, Callable
-
-from ollama_client import OllamaClient
-
-logging.basicConfig(level=logging.INFO, format="[CorpusCallosum:%(levelname)s] %(message)s")
-
-
-def check_perimeter(zone: str = "North") -> dict[str, Any]:
-    """Report perimeter status when no live camera/sensor provider is configured."""
-    return {
-        "status": "unavailable",
-        "zone": zone,
-        "cameras_active": None,
-        "alerts": None,
-        "message": "No live perimeter camera or sensor provider is configured.",
-    }
+from collections.abc import Callable
+from typing import Any
 
 
 class CorpusCallosum:
-    def __init__(self, model: str = "llama3.2"):
-        self.ollama = OllamaClient(default_model=model)
-        self.tools: dict[str, dict[str, Any]] = {}
-        self.register_mcp_tool(
-            name="check_perimeter",
-            description="Checks physical security and camera status for a perimeter zone.",
-            handler=check_perimeter,
-        )
-        logging.info("Corpus Callosum bridge initialized. Neural pathways active.")
+    """Central decision engine and registry for Michael AI tools and agents."""
 
-    def register_mcp_tool(self, name: str, description: str, handler: Callable):
-        """Register a local MCP tool function that agents can invoke."""
-        self.tools[name] = {
-            "description": description,
-            "handler": handler
+    def __init__(
+        self, ollama_client: Any | None = None, model: str = "llama3.2"
+    ) -> None:
+        self.ollama = ollama_client
+        self.model = model
+        self.registered_tools: dict[str, Callable[..., Any]] = {}
+        self.active_agents: dict[str, dict[str, Any]] = {}
+        self.agent_handlers: dict[str, Callable[..., Any]] = {}
+        self._init_pillar_registry()
+
+    def _init_pillar_registry(self) -> None:
+        """Initialize the known pillars without claiming unconnected services are live."""
+        self.active_agents = {
+            "corpus_callosum": {
+                "status": "active",
+                "type": "central_engine",
+            },
+            "yolo_vision": {
+                "status": "unavailable",
+                "description": "YOLO Computer Vision & Gait Profiling Agent",
+            },
+            "mcp_bridges": {
+                "status": "unavailable",
+                "description": "Model Context Protocol Edge Data Bridges",
+            },
+            "active_interception": {
+                "status": "unavailable",
+                "description": "Automated Active Interception & Relay Controller",
+            },
+            "can_ecu_interceptor": {
+                "status": "unavailable",
+                "description": "CAN Bus & ECU Telemetry Interceptor",
+            },
+            "rf_spectrum_monitor": {
+                "status": "unavailable",
+                "description": "RF Spectrum & Anti-Jamming Monitor",
+            },
+            "sensor_fusion": {
+                "status": "unavailable",
+                "description": "Multi-Camera Sensor Fusion Module",
+            },
+            "forensic_vault": {
+                "status": "unavailable",
+                "description": "Encrypted Forensic Evidence Vault",
+            },
+            "iot_m2m_sim": {
+                "status": "unavailable",
+                "description": "IoT-M2M SIM & Dual-Redundant Communication Module",
+            },
+            "emergency_dispatch": {
+                "status": "unavailable",
+                "description": "Law Enforcement & Emergency Dispatch Bridge",
+            },
+            "power_manager": {
+                "status": "unavailable",
+                "description": "Edge Power & Grid Stability Manager",
+            },
+            "audit_sentinel": {
+                "status": "unavailable",
+                "description": "System Audit & Integrity Sentinel",
+            },
+            "dashboard_agent": {
+                "status": "unavailable",
+                "description": "Local User Interface & Dashboard Agent",
+            },
         }
-        logging.info(f"Registered MCP Tool: '{name}' -> {description}")
 
-    def get_tool_manifest(self) -> list[dict[str, str]]:
-        """Return a manifest of all available tools for agent awareness."""
-        return [{"name": name, "info": data["description"]} for name, data in self.tools.items()]
+    def register_agent(
+        self,
+        agent_name: str,
+        handler_func: Callable[..., Any],
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Register an agent handler without exposing callables in status data."""
+        self.agent_handlers[agent_name] = handler_func
+        entry = self.active_agents.setdefault(agent_name, {})
+        entry.update(status="registered", metadata=metadata or {})
 
-    def route_intent(self, agent_prompt: str) -> dict[str, Any]:
-        """
-        Dispatch known perimeter requests directly; use Ollama for other intents.
-        """
-        if re.search(r"\b(water|meter|utility)\b", agent_prompt, re.IGNORECASE):
-            if "check_water_meter" not in self.tools:
-                return {
-                    "status": "error",
-                    "message": "No water-meter tool is registered.",
-                }
-            return self._dispatch_tool("check_water_meter", {})
+    def register_tool(self, name: str, func: Callable[..., Any]) -> None:
+        """Register a local tool or MCP-backed endpoint."""
+        self.registered_tools[name] = func
+        pillar_for_tool = {
+            "perimeter_camera": "yolo_vision",
+            "can_interceptor": "can_ecu_interceptor",
+            "rf_monitor": "rf_spectrum_monitor",
+        }.get(name)
+        if pillar_for_tool:
+            self.active_agents[pillar_for_tool]["status"] = "configured"
 
-        zone_match = re.search(r"\b(north|south|east|west)\b", agent_prompt, re.IGNORECASE)
-        if re.search(r"\b(perimeter|camera|cameras)\b", agent_prompt, re.IGNORECASE):
-            if "check_perimeter" not in self.tools:
-                return {
-                    "status": "error",
-                    "message": "No perimeter camera tool is registered.",
-                }
-            zone = zone_match.group(1).title() if zone_match else "unspecified"
-            return self._dispatch_tool("check_perimeter", {"zone": zone})
-
-        manifest = json.dumps(self.get_tool_manifest(), indent=2)
-        
-        system_prompt = (
-            "You are the Corpus Callosum, the central coordination bridge for Michael AI. "
-            "You have access to the following local MCP tools:\n"
-            f"{manifest}\n\n"
-            "Analyze the user prompt. If a tool is required to fulfill the request, "
-            "respond strictly in valid JSON format: {\"tool\": \"tool_name\", \"args\": {}}.\n"
-            "If no tool is required, respond strictly in valid JSON format: {\"tool\": null, \"response\": \"your text response\"}."
-        )
-
-        full_prompt = f"{system_prompt}\n\nUser Request: {agent_prompt}"
-        
-        result = self.ollama.generate(prompt=full_prompt, timeout=60)
-        raw_text = result.get("response")
-        
-        if not raw_text:
-            return {
-                "status": "error",
-                "message": result.get("error", "Inference failed or timed out."),
+        if name in {
+            "water_meter",
+            "perimeter_camera",
+            "can_interceptor",
+            "rf_monitor",
+        }:
+            self.active_agents["mcp_bridges"] = {
+                "status": "local_tools_registered",
+                "description": (
+                    "Local tool handlers are registered; MCP server connections "
+                    "are not configured."
+                ),
             }
 
-        # Clean and parse JSON intent
-        try:
-            cleaned_text = raw_text.strip()
-            if cleaned_text.startswith("```json"):
-                cleaned_text = cleaned_text[7:]
-            if cleaned_text.endswith("```"):
-                cleaned_text = cleaned_text[:-3]
-            
-            intent = json.loads(cleaned_text.strip())
-        except json.JSONDecodeError:
-            # Fallback if model conversationalizes output
-            return {"status": "success", "routed": False, "response": raw_text}
+    def route_intent(
+        self, prompt: str, context: dict[str, Any] | None = None
+    ) -> Any:
+        """Route known edge requests directly and send other prompts to Ollama."""
+        prompt_lower = prompt.lower().strip()
 
-        tool_name = intent.get("tool")
-        if tool_name:
-            if tool_name not in self.tools:
-                return {"status": "error", "message": f"Unknown tool: {tool_name}"}
-            args = intent.get("args", {})
-            if not isinstance(args, dict):
-                return {"status": "error", "tool": tool_name, "message": "Tool arguments must be a JSON object."}
-            return self._dispatch_tool(tool_name, args)
+        if "water" in prompt_lower and "meter" in prompt_lower:
+            if "water_meter" in self.registered_tools:
+                return self.registered_tools["water_meter"]()
+            return {
+                "status": "unavailable",
+                "message": "No municipal water-meter data provider is configured.",
+            }
 
-        return {"status": "success", "routed": False, "response": intent.get("response", raw_text)}
+        if re.search(r"\b(can|ecu|vehicle)\b", prompt_lower):
+            if "can_interceptor" in self.registered_tools:
+                return self.registered_tools["can_interceptor"](prompt_lower)
+            return {
+                "status": "unavailable",
+                "module": "CAN Bus & ECU Telemetry Interceptor",
+                "message": "No CAN bus telemetry provider is configured.",
+            }
 
-    def _dispatch_tool(self, tool_name: str, args: dict[str, Any]) -> dict[str, Any]:
-        logging.info(f"Dispatching intent to MCP Tool: {tool_name} with args {args}")
-        try:
-            tool_output = self.tools[tool_name]["handler"](**args)
-        except (TypeError, ValueError) as error:
-            return {"status": "error", "tool": tool_name, "message": str(error)}
+        if re.search(r"\b(rf|jamming|spectrum)\b", prompt_lower):
+            if "rf_monitor" in self.registered_tools:
+                return self.registered_tools["rf_monitor"]()
+            return {
+                "status": "unavailable",
+                "module": "RF Spectrum & Anti-Jamming Monitor",
+                "message": "No RF spectrum monitoring provider is configured.",
+            }
+
+        if re.search(r"\b(camera|cameras|perimeter|scan|security)\b", prompt_lower):
+            zone_match = re.search(
+                r"\b(north|south|east|west)\b", prompt_lower, re.IGNORECASE
+            )
+            zone = (
+                context.get("zone")
+                if context and "zone" in context
+                else zone_match.group(1).title() if zone_match else "North"
+            )
+            if "perimeter_camera" in self.registered_tools:
+                return self.registered_tools["perimeter_camera"](zone)
+            return {
+                "camera_status": "unavailable",
+                "zone": zone,
+                "message": "Set CAMERA_RTSP_URL to a camera stream to enable live checks.",
+            }
+
+        if (
+            re.search(r"\b(status|agents|pillars)\b", prompt_lower)
+        ):
+            return {
+                "corpus_callosum_status": "operational",
+                "pillars": self.active_agents,
+            }
+
+        if self.ollama:
+            return self.ollama.generate(prompt=prompt)
+
         return {
-            "status": "success",
-            "routed": True,
-            "tool": tool_name,
-            "output": tool_output,
+            "status": "error",
+            "message": "No matching route or active agent handler available.",
         }
-
-if __name__ == "__main__":
-    bridge = CorpusCallosum()
-
-    print("\n--- Testing Corpus Callosum Routing ---")
-    test_query = "Run a security check on the North zone perimeter."
-    output = bridge.route_intent(test_query)
-    print(json.dumps(output, indent=2))
