@@ -1,7 +1,7 @@
 # Dependencies imported by the Python tools and services in this workspace.
 crewai
 langchain-community
-mcp
+mcp>=1.1.0,<2.0.0
 numpy
 ollama
 opencv-python
