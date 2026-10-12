@@ -31,13 +31,20 @@ camera-frame capture, and local image processing.
 - Returns the current pillar registry for agent/status queries.
 - Uses a local Ollama model as a fallback for prompts that do not match a
   deterministic route.
+- Reports Ollama daemon/model status through the `ollama_engine` route and can
+  run explicit inference requests; failed requests remain unavailable instead
+  of being replaced by a simulated response.
+- Adds readable UTF-8 project files to every Ollama inference prompt as
+  untrusted context. Generated environments, binary files, and common local
+  secret files (`.env` and private-key formats) are excluded.
 
 ## Requirements
 
 - Python 3.10 or newer.
 - The Python packages in `requirements.txt`.
 - Ollama with the configured `llama3.2` model for prompts that use the LLM
-  fallback. The deterministic water/camera/CAN/RF routes do not require Ollama.
+  fallback. Project file context is sent only to the configured Ollama endpoint.
+  The deterministic water/camera/CAN/RF routes do not require Ollama.
 - A camera stream or local image/video file for frame capture. Camera hardware
   is optional.
 

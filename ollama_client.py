@@ -1,18 +1,28 @@
 import requests
 import json
+from pathlib import Path
 from typing import Optional, Dict, Any
 
+from ollama_context import build_project_prompt
+
+
 class OllamaClient:
-    def __init__(self, base_url: str = "http://localhost:11434", default_model: str = "llama3.2"):
+    def __init__(
+        self,
+        base_url: str = "http://localhost:11434",
+        default_model: str = "llama3.2",
+        project_root: Path | None = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.default_model = default_model
+        self.project_root = project_root
 
     def generate(self, prompt: str, model: Optional[str] = None, timeout: int = 120) -> Dict[str, Any]:
         """Send a generation request to the local Ollama daemon."""
         url = f"{self.base_url}/api/generate"
         payload = {
             "model": model or self.default_model,
-            "prompt": prompt,
+            "prompt": build_project_prompt(prompt, self.project_root),
             "stream": False
         }
         

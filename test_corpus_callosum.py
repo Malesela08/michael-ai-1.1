@@ -158,3 +158,29 @@ def test_relay_trigger_prompt_selects_matching_simulated_relay():
         "status": "simulation_only",
         "action": "perimeter_siren",
     }
+
+
+def test_ollama_status_route_calls_registered_handler():
+    bridge = CorpusCallosum()
+    bridge.register_tool(
+        "ollama_engine",
+        lambda payload=None: {"status": "active", "model": "llama3.2"},
+    )
+    assert bridge.route_intent("Check Ollama status.") == {
+        "status": "active",
+        "model": "llama3.2",
+    }
+
+
+def test_status_includes_ollama_engine_health_separately_from_thirteen_pillars():
+    import json
+
+    bridge = CorpusCallosum()
+    bridge.register_tool(
+        "ollama_engine",
+        lambda payload=None: {"status": "model_unavailable", "model": "llama3.2"},
+    )
+    result = bridge.route_intent("Show all agent status")
+    assert len(result["pillars"]) == 13
+    assert result["ollama_engine"]["status"] == "model_unavailable"
+    json.dumps(result)

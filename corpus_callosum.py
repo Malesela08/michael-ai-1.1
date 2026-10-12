@@ -78,11 +78,14 @@ class CorpusCallosum:
         agent_name: str,
         handler_func: Callable[..., Any],
         metadata: dict[str, Any] | None = None,
+        *,
+        include_in_pillars: bool = True,
     ) -> None:
         """Register an agent handler without exposing callables in status data."""
         self.agent_handlers[agent_name] = handler_func
-        entry = self.active_agents.setdefault(agent_name, {})
-        entry.update(status="registered", metadata=metadata or {})
+        if include_in_pillars:
+            entry = self.active_agents.setdefault(agent_name, {})
+            entry.update(status="registered", metadata=metadata or {})
 
     def register_tool(self, name: str, func: Callable[..., Any]) -> None:
         """Register a local tool or MCP-backed endpoint."""
@@ -118,6 +121,19 @@ class CorpusCallosum:
     ) -> Any:
         """Route known edge requests directly and send other prompts to Ollama."""
         prompt_lower = prompt.lower().strip()
+
+        if re.search(r"\bollama\b", prompt_lower):
+            if "ollama_engine" in self.registered_tools:
+                if re.search(r"\b(status|health|connection)\b", prompt_lower):
+                    return self.registered_tools["ollama_engine"]()
+                payload = context.get("payload") if context else None
+                if payload is None:
+                    payload = {"action": "generate", "prompt": prompt}
+                return self.registered_tools["ollama_engine"](payload)
+            return {
+                "status": "unavailable",
+                "message": "No Ollama engine handler is registered.",
+            }
 
         if "water" in prompt_lower and "meter" in prompt_lower:
             if "water_meter" in self.registered_tools:
@@ -205,10 +221,13 @@ class CorpusCallosum:
         if (
             re.search(r"\b(status|agents|pillars)\b", prompt_lower)
         ):
-            return {
+            status = {
                 "corpus_callosum_status": "operational",
                 "pillars": self.active_agents,
             }
+            if "ollama_engine" in self.registered_tools:
+                status["ollama_engine"] = self.registered_tools["ollama_engine"]()
+            return status
 
         if self.ollama:
             return self.ollama.generate(prompt=prompt)

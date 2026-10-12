@@ -12,6 +12,7 @@ def test_create_hub_registers_available_tools():
         "forensic_vault",
         "relay_controller",
         "can_interceptor",
+        "ollama_engine",
     } <= hub.registered_tools.keys()
     assert "yolo_vision" in hub.agent_handlers
     assert hub.active_agents["forensic_vault"]["status"] == "configured"
@@ -21,7 +22,10 @@ def test_create_hub_registers_available_tools():
         "forensic_vault",
         "active_interception",
         "can_ecu_interceptor",
+        "ollama_engine",
     } <= hub.agent_handlers.keys()
+    assert "ollama_engine" not in hub.active_agents
+    assert len(hub.active_agents) == 13
 
 
 def test_water_meter_does_not_claim_placeholder_reading_is_live():
