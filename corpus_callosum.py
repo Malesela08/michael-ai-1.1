@@ -199,11 +199,19 @@ class CorpusCallosum:
                 else zone_match.group(1).title() if zone_match else "North"
             )
             if "perimeter_camera" in self.registered_tools:
+                source = context.get("source") if context else None
+                if source is not None:
+                    return self.registered_tools["perimeter_camera"](
+                        zone, source=source
+                    )
                 return self.registered_tools["perimeter_camera"](zone)
             return {
                 "camera_status": "unavailable",
                 "zone": zone,
-                "message": "Set CAMERA_RTSP_URL to a camera stream to enable live checks.",
+                "message": (
+                    "Set CAMERA_SOURCE to a local image/video or online stream; "
+                    "CAMERA_RTSP_URL also works for RTSP."
+                ),
             }
 
         if (

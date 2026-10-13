@@ -1,5 +1,8 @@
+import argparse
 import json
+import os
 import sys
+from os import PathLike
 from typing import Any
 
 from can_ecu_agent import CanEcuInterceptorHandler
@@ -18,9 +21,12 @@ def query_water_meter() -> dict[str, str]:
     }
 
 
-def scan_perimeter_camera(zone: str = "North") -> dict[str, Any]:
+def scan_perimeter_camera(
+    zone: str = "North",
+    source: str | PathLike[str] | int | None = None,
+) -> dict[str, Any]:
     """Capture a perimeter frame and report vision inference availability."""
-    return VisionAgent().analyze_frame(zone=zone)
+    return VisionAgent(source=source).analyze_frame(zone=zone)
 
 
 def create_hub() -> CorpusCallosum:
@@ -38,7 +44,7 @@ def create_hub() -> CorpusCallosum:
     )
     callosum.register_tool(
         "perimeter_camera",
-        lambda zone: vision_agent.analyze_frame(zone=zone),
+        lambda zone, source=None: vision_agent.analyze_frame(source, zone=zone),
     )
     callosum.register_agent(
         "forensic_vault",
@@ -61,17 +67,44 @@ def create_hub() -> CorpusCallosum:
     return callosum
 
 
-def main() -> dict[str, Any]:
-    print("Initializing Michael AI - Sovereign Core...")
-    callosum = create_hub()
-
-    prompt = (
-        "Check the water meter status for the household."
-        if len(sys.argv) == 1
-        else " ".join(sys.argv[1:])
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Michael AI - Sovereign Edge Security & Telemetry Platform"
     )
+    parser.add_argument(
+        "--all-nodes",
+        action="store_true",
+        help="Report registered nodes and their configured status; does not activate them",
+    )
+    parser.add_argument(
+        "--camera-source",
+        default=os.getenv("CAMERA_SOURCE"),
+        help="Camera device index, local image/video, or authorized stream URL",
+    )
+    parser.add_argument(
+        "prompt",
+        nargs="*",
+        help="Optional prompt or task command for the orchestrator",
+    )
+    return parser.parse_args(argv)
+
+
+def main() -> dict[str, Any]:
+    args = parse_args()
+    callosum = create_hub()
+    if args.all_nodes:
+        prompt = "Show system status"
+    else:
+        prompt = (
+            "Check the water meter status for the household."
+            if not args.prompt
+            else " ".join(args.prompt)
+        )
+
+    context = {"source": args.camera_source} if args.camera_source is not None else None
+    print("Initializing Michael AI - Sovereign Core...")
     print(f"\n[Dispatching Agent Prompt]: '{prompt}'")
-    result = callosum.route_intent(prompt)
+    result = callosum.route_intent(prompt, context=context)
     print("\n[Execution Result]:")
     print(json.dumps(result, indent=2))
     return result

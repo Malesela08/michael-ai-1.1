@@ -3,6 +3,7 @@ from corpus_callosum import CorpusCallosum
 
 
 def test_orchestrator_routes_perimeter_request(monkeypatch):
+    monkeypatch.delenv("CAMERA_SOURCE", raising=False)
     monkeypatch.delenv("CAMERA_RTSP_URL", raising=False)
     result = query_lamla("Check the North zone perimeter.")
     assert result["status"] == "unavailable"
@@ -11,6 +12,7 @@ def test_orchestrator_routes_perimeter_request(monkeypatch):
 
 
 def test_perimeter_request_without_zone_uses_default_zone(monkeypatch):
+    monkeypatch.delenv("CAMERA_SOURCE", raising=False)
     monkeypatch.delenv("CAMERA_RTSP_URL", raising=False)
     result = query_lamla("Check the perimeter.")
     assert result["zone"] == "North"
