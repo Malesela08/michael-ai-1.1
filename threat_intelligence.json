@@ -1,0 +1,41 @@
+{
+  "region": "South Africa",
+  "primary_threats": [
+    {
+      "category": "Vehicle Hijacking",
+      "annual_estimated_incidents": 16000,
+      "high_risk_provinces": [
+        "Gauteng",
+        "KwaZulu-Natal",
+        "Western Cape"
+      ],
+      "target_hotspots": [
+        "Pretoria / Tshwane",
+        "Johannesburg Metropole",
+        "The Orchards"
+      ],
+      "peak_windows": [
+        {
+          "window": "Morning Rush",
+          "time": "06:00-09:00",
+          "vector": "Driveway/Gate Ambush"
+        },
+        {
+          "window": "Evening Return",
+          "time": "18:00-21:00",
+          "vector": "Home Perimeter Interception"
+        }
+      ],
+      "tactical_vectors": [
+        "Driveway blocking",
+        "Signal jamming on key fobs",
+        "ECU tampering / OBD-II override"
+      ]
+    }
+  ],
+  "system_defense_posture": {
+    "auto_lock_doors": true,
+    "perimeter_pre_scan_multiplier": 1.5,
+    "alert_priority": "CRITICAL"
+  }
+}
