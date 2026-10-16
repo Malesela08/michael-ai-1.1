@@ -1,23 +1,29 @@
-# Unyielding Zero-Tolerance Operational Protocol for Michael AI
-# "WE DON'T NEGOTIATE - ABSOLUTE VICTIM PROTECTION"
+# Zero-Tolerance Enforcement Module for Michael AI
+# "Uncompromising Defense Protocols Against Criminal Vectors"
 
-ZERO_TOLERANCE_POLICY = {
-    "directive": "ABSOLUTE_PROTECTION",
-    "status": "ACTIVE",
-    "negotiation_allowed": False,
-    "rules": [
-        "Zero hesitation on perimeter and personal safety breaches.",
-        "Immediate silent distress activation upon pattern confirmation.",
-        "Local, encrypted evidence preservation for legal prosecution.",
-        "Air-gapped autonomy: protection continues regardless of external network states."
+def enforce_zero_tolerance(event_type: str, severity: str) -> dict:
+    """
+    Enforces immediate, uncompromising lockdown, evidence preservation, and SOS dispatch 
+    for critical offenses like hijackings, cable theft, infrastructure sabotage, and armed robbery.
+    """
+    critical_offenses = [
+        "VEHICLE_HIJACKING", 
+        "STOLEN_CARS", 
+        "ARMED_ROBBERY", 
+        "CABLE_THEFT", 
+        "INFRASTRUCTURE_SABOTAGE", 
+        "FORCED_ENTRY"
     ]
-}
-
-def enforce_zero_tolerance(event_type: str, severity: str):
-    if severity in ["CRITICAL", "EXTREME"]:
+    
+    if event_type in critical_offenses or severity == "CRITICAL":
         return {
             "action": "IMMEDIATE_LOCKDOWN_AND_SOS",
-            "message": "Zero-tolerance trigger activated. Non-negotiable defense protocol engaged.",
-            "protocol": ZERO_TOLERANCE_POLICY["rules"]
+            "status": "ZERO_TOLERANCE_ENFORCED",
+            "message": f"CRITICAL ENEMY VECTOR DETECTED ({event_type}). NO WARNING. IMMEDIATE DEFENSE PROTOCOL ACTIVE."
         }
-    return {"action": "STANDARD_MONITORING", "message": "Monitoring perimeter."}
+    else:
+        return {
+            "action": "STANDARD_MONITORING_AND_LOGGING",
+            "status": "VIGILANT",
+            "message": "Monitoring environmental telemetry."
+        }
