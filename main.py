@@ -1,5 +1,5 @@
 # Master Execution Loop for Michael AI
-# "Autonomous Edge Security, Zero-Tolerance & Public Space Multi-Agency GBVF Protection"
+# "Autonomous Edge Security, Multi-Agency Dispatch & Victim Safe Zone Routing"
 
 from agents.provincial_threats import get_provincial_threat_level
 from agents.zero_tolerance import enforce_zero_tolerance
@@ -8,7 +8,7 @@ from agents.protection_order import ProtectionOrderMonitor, evaluate_public_prot
 from agents.database_logger import MichaelTelemetryDB
 
 def run_michael_ai_cycle():
-    print("🛡️ Initializing Michael AI Public Space Protection Order & Multi-Agency Dispatch Cycle...")
+    print("🛡️ Initializing Michael AI Public Space Protection & Safe Zone Guidance Cycle...")
     
     db = MichaelTelemetryDB()
     po_monitor = ProtectionOrderMonitor()
@@ -25,13 +25,13 @@ def run_michael_ai_cycle():
     provincial_data = get_provincial_threat_level(province)
     print(f"📍 Region Checked: {province} | Risk Tier: {provincial_data.get('risk_tier')}")
     
-    # SIMULATION: Public space camera (e.g. Shopping Mall / Transit Hub) detects restrained individual 1.2 km from victim
+    # SIMULATION: Public space detection 1.2 km away from victim
     detected_face = "FACE_TARGET_RESTRAINED"
     public_location = "MAMELODI_CENTRAL_TRANSIT_HUB"
     gps_coords = "-25.7231,28.3711"
-    current_distance_km = 1.2  # 1.2 km away in public space (Breach of 5 km limit)
+    current_distance_km = 1.2
     
-    # 1. Evaluate Public Space Breach & Execute SAPS/GBVF Dispatches
+    # 1. Evaluate Breach, Dispatch Emergency Telemetry, & Generate Safe Route
     public_assessment = evaluate_public_protection_order(
         detected_face_id=detected_face,
         location_name=public_location,
@@ -40,7 +40,12 @@ def run_michael_ai_cycle():
     )
     
     print(f"{public_assessment['message']}")
-    print(f"📍 Location: {public_assessment['location_name']} | Distance: {public_assessment['distance_km']} km | Status: {public_assessment['status']}")
+    
+    if public_assessment.get("safe_zone"):
+        sz = public_assessment["safe_zone"]
+        print(f"🗺️ [VICTIM SAFE ROUTING] Threat approaching ({current_distance_km} km)! Immediate evacuation directed to:")
+        print(f"   📍 Safe Haven: {sz['name']} ({sz['type']})")
+        print(f"   📏 Distance to Safe Zone: {sz['distance_km']} km | Status: {sz['status']}")
     
     if public_assessment["matched"]:
         event_type = f"PUBLIC_SPACE_{public_assessment['status']}"
@@ -57,15 +62,15 @@ def run_michael_ai_cycle():
     defense_action = enforce_zero_tolerance(event_type, severity)
     print(f"⚡ Zero-Tolerance Directive: {defense_action['action']}")
     
-    # 4. Immutably Log Telemetry for Law Enforcement & Court Admissibility
+    # 4. Immutably Log Evidence
     db.log_threat(
         event_type=event_type,
         severity=severity,
-        action_taken=f"{defense_action['action']} [SAPS & GBVF Dispatched | Location: {public_location} | Distance: {public_assessment['distance_km']} km]",
+        action_taken=f"{defense_action['action']} [Routed to: {public_assessment['safe_zone']['name']} | SAPS/GBVF Dispatched]",
         evidence_status="SEALED_CHAIN_OF_CUSTODY_PUBLIC_EVIDENCE_POPIA_COMPLIANT"
     )
     
-    print("✅ Public space GBVF & law enforcement dispatch cycle completed successfully.")
+    print("✅ Public space GBVF defense & victim safe-routing cycle completed successfully.")
 
 if __name__ == "__main__":
     run_michael_ai_cycle()

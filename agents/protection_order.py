@@ -1,5 +1,5 @@
-# Protection Order Proximity, Public Space & Multi-Agency Dispatch Engine for Michael AI
-# "Facial Recognition, Distance Tracking, SAPS & GBVF Multi-Agency Evidence Dispatch"
+# Protection Order Proximity, Public Space & Autonomous Safe Zone Guidance Engine for Michael AI
+# "Facial Recognition, Distance Tracking, SAPS/GBVF Multi-Agency Dispatch & Victim Safe Routing"
 
 import sqlite3
 from datetime import datetime
@@ -44,6 +44,22 @@ class ProtectionOrderMonitor:
             print(f"⚠️ Registration Error: {e}")
             return False
 
+    def recommend_safe_zone(self, current_victim_loc: str) -> dict:
+        """
+        Calculates and recommends the nearest high-security public sanctuary or police facility
+        if the victim is away from home during a breach.
+        """
+        # Simulated edge lookup for nearest secure facilities in the active zone
+        safe_havens = [
+            {"name": "SAPS Mamelodi East Police Station", "type": "POLICE_STATION", "distance_km": 0.8, "status": "24/7_ACTIVE_ARMED_GUARD"},
+            {"name": "Mamelodi Regional Hospital Security Hub", "type": "HOSPITAL_SECURITY", "distance_km": 1.4, "status": "24/7_PATROLLED"},
+            {"name": "Denlyn Mall Security Control Office", "type": "PRIVATE_SECURITY_HUB", "distance_km": 2.1, "status": "MONITORED_ZONE"}
+        ]
+        
+        # Sort by closest safe facility
+        closest_safe_zone = sorted(safe_havens, key=lambda x: x["distance_km"])[0]
+        return closest_safe_zone
+
     def evaluate_public_space_breach(self, detected_face_id: str, location_name: str, gps_coords: str, current_distance_km: float) -> dict:
         matched = False
         restrained_party = "UNKNOWN"
@@ -67,15 +83,21 @@ class ProtectionOrderMonitor:
         except Exception as e:
             print(f"⚠️ Evaluation Error: {e}")
 
+        safe_zone_suggestion = None
+
         if matched:
             if current_distance_km <= allowed_min_dist:
                 status = "PUBLIC_SPACE_CRITICAL_BREACH"
                 threat_level = "CRITICAL"
-                action = "DISPATCH_SAPS_AND_GBVF_ORGANIZATIONS"
+                action = "DISPATCH_SAPS_AND_GBVF_ORGANIZATIONS_AND_ROUTE_VICTIM"
                 
                 # Multi-agency emergency telemetry burst
                 dispatches = self._dispatch_multi_agency_alert(order_num, restrained_party, location_name, gps_coords, current_distance_km)
-                msg = f"🚨 [PUBLIC SPACE BREACH] Restrained party '{restrained_party}' detected at {location_name} ({current_distance_km:.1f} km from protected individual)!"
+                
+                # Calculate safest destination for victim
+                safe_zone_suggestion = self.recommend_safe_zone(location_name)
+                
+                msg = f"🚨 [PUBLIC SPACE BREACH] Restrained party '{restrained_party}' detected at {location_name} ({current_distance_km:.1f} km away)!"
             else:
                 status = "MONITORING_PROXIMITY"
                 threat_level = "PASSIVE"
@@ -100,6 +122,7 @@ class ProtectionOrderMonitor:
             "threat_level": threat_level,
             "action": action,
             "dispatches": dispatches,
+            "safe_zone": safe_zone_suggestion,
             "message": msg
         }
 
