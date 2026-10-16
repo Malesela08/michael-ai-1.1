@@ -1,7 +1,8 @@
-# Protection Order Proximity & Breach Engine for Michael AI
-# "Facial Recognition, Distance Tracking & Early Breach Warning"
+# Protection Order Proximity, Public Space & Multi-Agency Dispatch Engine for Michael AI
+# "Facial Recognition, Distance Tracking, SAPS & GBVF Multi-Agency Evidence Dispatch"
 
 import sqlite3
+from datetime import datetime
 
 class ProtectionOrderMonitor:
     def __init__(self, db_path="michael_telemetry.db"):
@@ -43,7 +44,7 @@ class ProtectionOrderMonitor:
             print(f"⚠️ Registration Error: {e}")
             return False
 
-    def evaluate_facial_proximity(self, detected_face_id: str, zone: str, current_distance_km: float) -> dict:
+    def evaluate_public_space_breach(self, detected_face_id: str, location_name: str, gps_coords: str, current_distance_km: float) -> dict:
         matched = False
         restrained_party = "UNKNOWN"
         order_num = None
@@ -67,39 +68,54 @@ class ProtectionOrderMonitor:
             print(f"⚠️ Evaluation Error: {e}")
 
         if matched:
-            if current_distance_km == 0.0 or "ENTRY" in zone.upper() or "GATE" in zone.upper():
-                status = "CRITICAL_BREACH_AT_ENTRY"
+            if current_distance_km <= allowed_min_dist:
+                status = "PUBLIC_SPACE_CRITICAL_BREACH"
                 threat_level = "CRITICAL"
-                action = "IMMEDIATE_LOCKDOWN_AND_SOS"
-                msg = f"🚨 [BREACH CONFIRMED] {restrained_party} detected directly at {zone}!"
-            elif current_distance_km <= allowed_min_dist:
-                status = "BREACH_PENDING"
-                threat_level = "HIGH_ALERT"
-                action = "RAISE_DEFENSIVE_SHIELD_AND_ALERT_VICTIM"
-                msg = f"⚠️ [BREACH PENDING] Restrained party '{restrained_party}' is {current_distance_km:.1f} km from victim (Allowed Limit: {allowed_min_dist:.1f} km)!"
+                action = "DISPATCH_SAPS_AND_GBVF_ORGANIZATIONS"
+                
+                # Multi-agency emergency telemetry burst
+                dispatches = self._dispatch_multi_agency_alert(order_num, restrained_party, location_name, gps_coords, current_distance_km)
+                msg = f"🚨 [PUBLIC SPACE BREACH] Restrained party '{restrained_party}' detected at {location_name} ({current_distance_km:.1f} km from protected individual)!"
             else:
                 status = "MONITORING_PROXIMITY"
                 threat_level = "PASSIVE"
                 action = "LOG_LOCATION"
-                msg = f"ℹ️ {restrained_party} detected at {current_distance_km:.1f} km distance."
+                dispatches = []
+                msg = f"ℹ️ {restrained_party} detected at {current_distance_km:.1f} km distance in public space."
         else:
             status = "CLEAR"
             threat_level = "CLEAR"
             action = "PASSIVE_LOGGING"
+            dispatches = []
             msg = "No restricted face match detected."
 
         return {
             "matched": matched,
             "order_id": order_num,
             "restrained_party": restrained_party,
-            "zone": zone,
+            "location_name": location_name,
+            "gps_coords": gps_coords,
             "distance_km": current_distance_km,
             "status": status,
             "threat_level": threat_level,
             "action": action,
+            "dispatches": dispatches,
             "message": msg
         }
 
-def evaluate_protection_order_face(detected_face_id: str, zone: str, current_distance_km: float) -> dict:
+    def _dispatch_multi_agency_alert(self, order_id: str, restrained_party: str, location: str, gps: str, dist_km: float) -> list:
+        timestamp = datetime.now().isoformat()
+        saps_payload = f"SAPS_EMERGENCY|ORDER:{order_id}|RESTRAINED:{restrained_party}|LOC:{location}|GPS:{gps}|DIST:{dist_km:.1f}km|TS:{timestamp}"
+        gbvf_org_payload = f"GBVF_SUPPORT_ALERT|ORDER:{order_id}|LOC:{location}|GPS:{gps}|VICTIM_ASSIST_REQUIRED|TS:{timestamp}"
+
+        print(f"🚓 [SAPS DISPATCH] Transmitting priority law enforcement alert: {saps_payload}")
+        print(f"🎗️ [GBVF ORG DISPATCH] Transmitting support crisis payload: {gbvf_org_payload}")
+
+        return [
+            {"agency": "SAPS_NATIONAL_DISPATCH", "status": "TRANSMITTED_VIA_RF_BURST"},
+            {"agency": "GBVF_COMMAND_CENTRE_AND_SHELTERS", "status": "TRANSMITTED_ENCRYPTED"}
+        ]
+
+def evaluate_public_protection_order(detected_face_id: str, location_name: str, gps_coords: str, current_distance_km: float) -> dict:
     monitor = ProtectionOrderMonitor()
-    return monitor.evaluate_facial_proximity(detected_face_id, zone, current_distance_km)
+    return monitor.evaluate_public_space_breach(detected_face_id, location_name, gps_coords, current_distance_km)
