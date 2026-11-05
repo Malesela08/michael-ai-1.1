@@ -1,0 +1,27 @@
+{
+    "status": "SUCCESS",
+    "model": "RT-DETR",
+    "threat_detected": true,
+    "detections": [
+        {
+            "class": "person_at_risk",
+            "confidence": 0.94,
+            "box": [
+                100,
+                150,
+                300,
+                400
+            ]
+        },
+        {
+            "class": "unauthorized_vehicle",
+            "confidence": 0.89,
+            "box": [
+                500,
+                200,
+                700,
+                600
+            ]
+        }
+    ]
+}
